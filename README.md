@@ -146,3 +146,25 @@ jmp halt
 몰1루
 ??? 몰1루
 ```
+
+## 파일 모듈화
+
+`털!자` 뒤에 파일명을 붙여 내용에 포함
+
+C
+
+```c
+#include <file.h>
+```
+
+AT&T
+
+```asm
+.include "file.S"
+```
+
+몰?랭
+
+```mollang
+털!자 file.mol
+```
