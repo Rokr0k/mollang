@@ -1,0 +1,25 @@
+{
+  "name": "mollang",
+  "version": "1.0.0",
+  "description": "mol?lu",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rokr0k/mollang.git"
+  },
+  "author": "Rokr0k",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/Rokr0k/mollang/issues"
+  },
+  "homepage": "https://github.com/Rokr0k/mollang#readme",
+  "dependencies": {
+    "typescript": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.15"
+  }
+}
