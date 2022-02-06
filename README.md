@@ -1,6 +1,6 @@
 # 몰?랭
 
-![몰?루](https://dcimg5.dcinside.com/dccon.php?no=62b5df2be09d3ca567b1c5bc12d46b394aa3b1058c6e4d0ca41648b651ed2c6e063a16eeed4426ea3b28e2bb2520ae89a6b7ac688d9e9bb0234d864ce48f9f0284beeaa8ab7fecc8bc)
+![몰?루](https://ac2.namu.la/20210218/fee9a87d7583362b801ca2415dcfbff6b7d54e6e896cd45d2aced00610bd4fce.png)
 
 ## 자료구조
 
@@ -91,4 +91,4 @@
 |몰루아 A|스택에 저장된 값을 A에 저장합니다.|POP A|
 |몰루?|모든 레지스터에 대해서 `몰루몰`을 실행합니다.|PUSHA|
 |몰루루|모든 레지스터에 대해서 `몰루아`를 실행합니다.|POPA|
-|아?루|![아?루](https://dcimg5.dcinside.com/dccon.php?no=62b5df2be09d3ca567b1c5bc12d46b394aa3b1058c6e4d0ca41648b650e9236ed18a0d2f6e2b3c660178531ec0ace5688df054c1ce02a8832fee60ecb33aa2fb46097017a28d) 에러 발생을 통해 프로그램을 종료합니다.|HLT|
+|아?루|![아?루](https://ac.namu.la/20211108s1/081c232f048c3d9a458f56584df508baa4291e8975c157016255d81ffa129449.png) 에러 발생을 통해 프로그램을 종료합니다.|HLT|
