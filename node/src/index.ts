@@ -7,7 +7,6 @@ async function compile(text: string, relative: string): Promise<Int32Array> {
     const buffer: (number | string)[] = [];
 
     const operation = /^([몰아\?루]{3})(\s+(\S+))?(\s+(\S+))?\s*/;
-    const expression = /^(털\!자\s+"(.*)"|개추\s+(\d+))\s*/;
     const addression = /^ﾌﾄｽﾄ(\!*)\s*/;
 
     const immediator = (expr: string): number => {
@@ -28,12 +27,12 @@ async function compile(text: string, relative: string): Promise<Int32Array> {
             return { type: 0, value: immediator(expr) }; // immediate
         } else if (match = expr.match(/^몰(\d)루$/)) {
             return { type: 1, value: +match[1] }; // register
-        } else if (match = expr.match(/^털자(\d)$/)) {
-            return { type: 2, value: +match[1] }; // registerized addressized register
         } else if (match = expr.match(/^ﾌﾄｽﾄ(\!*)$/)) {
-            return { type: 3, value: match[1] }; // address
-        } else if (match = expr.match(/^털자(\!*)$/)) {
-            return { type: 4, value: match[1] }; // registerized address
+            return { type: 2, value: match[1] }; // address
+        } else if (match = expr.match(/^털(\!*)자$/)) {
+            return { type: 3, value: match[1] }; // registerized address
+        } else if (match = expr.match(/^털(\d)자$/)) {
+            return { type: 4, value: +match[1] }; // registerized addresserized register
         } else {
             return { type: -1, value: 0 };
         }
@@ -51,28 +50,28 @@ async function compile(text: string, relative: string): Promise<Int32Array> {
 
             switch (operator) {
                 case 0: // NAND
-                    if (arg0.type < 0 || arg0.type == 0 || arg0.type == 3 || arg1.type < 0) {
+                    if (arg0.type < 0 || arg0.type == 0 || arg0.type == 2 || arg1.type < 0) {
                         throw new Error(`"${match[1]} ${match[3]} ${match[5]}" 몰?루`);
                     }
                     buffer.push(0 + arg0.type * 5 + arg1.type, arg0.value, arg1.value);
                     text = text.substring(match[1].length + match[2].length + match[4].length);
                     break;
                 case 1: // SHL
-                    if (arg0.type < 0 || arg0.type == 0 || arg0.type == 3 || arg1.type < 0) {
+                    if (arg0.type < 0 || arg0.type == 0 || arg0.type == 2 || arg1.type < 0) {
                         throw new Error(`"${match[1]} ${match[3]} ${match[5]}" 몰?루`);
                     }
                     buffer.push(25 + arg0.type * 5 + arg1.type, arg0.value, arg1.value);
                     text = text.substring(match[1].length + match[2].length + match[4].length);
                     break;
                 case 2: // SHR
-                    if (arg0.type < 0 || arg0.type == 0 || arg0.type == 3 || arg1.type < 0) {
+                    if (arg0.type < 0 || arg0.type == 0 || arg0.type == 2 || arg1.type < 0) {
                         throw new Error(`"${match[1]} ${match[3]} ${match[5]}" 몰?루`);
                     }
                     buffer.push(50 + arg0.type * 5 + arg1.type, arg0.value, arg1.value);
                     text = text.substring(match[1].length + match[2].length + match[4].length);
                     break;
                 case 3: // MOV
-                    if (arg0.type < 0 || arg0.type == 0 || arg0.type == 3 || arg1.type < 0) {
+                    if (arg0.type < 0 || arg0.type == 0 || arg0.type == 2 || arg1.type < 0) {
                         throw new Error(`"${match[1]} ${match[3]} ${match[5]}" 몰?루`);
                     }
                     buffer.push(75 + arg0.type * 5 + arg1.type, arg0.value, arg1.value);
@@ -142,29 +141,11 @@ async function compile(text: string, relative: string): Promise<Int32Array> {
                     buffer.push(156 + arg0.type, arg0.value);
                     text = text.substring(match[1].length + match[2].length);
                     break;
-                case 14: // PUSHA
+                case 27: // HLT
                     buffer.push(161);
                     text = text.substring(match[1].length);
                     break;
-                case 15: // POPA
-                    buffer.push(162);
-                    text = text.substring(match[1].length);
-                    break;
-                case 27: // HLT
-                    buffer.push(163);
-                    text = text.substring(match[1].length);
-                    break;
             }
-        } else if (match = text.match(expression)) {
-            if (match[0].startsWith("털!자")) {
-                const file = path.relative(relative, match[2]);
-                buffer.push(...await compile((await fs.promises.readFile(file)).toString(), path.dirname(file)));
-            } else if (match[0].startsWith("개추")) {
-                for (let i = 0; i < +match[3]; i++) {
-                    buffer.push(0);
-                }
-            }
-            text = text.substring(match[0].length);
         } else if (match = text.match(addression)) {
             addresses[match[1]] = buffer.length;
             text = text.substring(match[0].length);
@@ -205,11 +186,11 @@ async function run(code: Int32Array) {
             case 1:
                 return registers[arg.value];
             case 2:
-                return buffer[registers[arg.value]];
-            case 3:
                 return arg.value;
-            case 4:
+            case 3:
                 return buffer[arg.value];
+            case 4:
+                return buffer[registers[arg.value]];
             default:
                 return Math.floor(Math.random() * 2147483647);
         }
@@ -219,11 +200,11 @@ async function run(code: Int32Array) {
             case 1:
                 registers[arg.value] = value;
                 break;
-            case 2:
-                buffer[registers[arg.value]] = value;
+            case 3:
+                buffer[arg.value] = value;
                 break;
             case 4:
-                buffer[arg.value] = value;
+                buffer[registers[arg.value]] = value;
                 break;
         }
     };
@@ -357,15 +338,7 @@ async function run(code: Int32Array) {
             const arg0 = { type: buffer[cursor] - 156, value: buffer[cursor + 1] };
             insert(arg0, stack.pop());
             cursor += 2;
-        } else if (buffer[cursor] < 162) { // PUSHA
-            stack.push(...[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(v => registers[v]));
-            cursor++;
-        } else if (buffer[cursor] < 163) { // POPA
-            for (const i of [9, 8, 7, 6, 5, 4, 3, 2, 1, 0]) {
-                registers[i] = stack.pop();
-            }
-            cursor++;
-        } else if (buffer[cursor] < 165) { // HLT
+        } else if (buffer[cursor] < 162) { // HLT
             cursor++;
             process.exitCode = -1;
             throw new Error("치명적인♥ 에러");
