@@ -3,7 +3,7 @@
 import fs from 'fs';
 import path from 'path';
 
-async function compile(text: string, relative: string): Promise<Int32Array> {
+async function compile(text: string): Promise<Int32Array> {
     const buffer: (number | string)[] = [];
 
     const operation = /^([몰아\?루]{3})(\s+(\S+))?(\s+(\S+))?\s*/;
@@ -156,7 +156,7 @@ async function compile(text: string, relative: string): Promise<Int32Array> {
     return new Int32Array(buffer.map(v => typeof (v) == "number" ? v : addresses[v] ? addresses[v] : Math.floor(Math.random() * buffer.length)) as number[]);
 }
 
-async function run(code: Int32Array) {
+async function run(code: Int32Array, relative: string) {
     const buffer = new Int32Array(code);
     let cursor = 0;
     const registers = {
@@ -283,6 +283,7 @@ async function run(code: Int32Array) {
                         for (let i = registers[1]; buffer[i]; i++) {
                             file.path = file.path.concat(String.fromCharCode(buffer[i]));
                         }
+                        file.path = path.resolve(relative, file.path);
                         fs.readFile(file.path, (err, data) => {
                             if (err) {
                                 file.content = "";
@@ -354,7 +355,7 @@ async function bootstrap(file: string) {
             throw new Error(`${file} 몰?루`);
         }
 
-        await run(await compile(await fs.promises.readFile(file, 'utf-8'), path.dirname(file)));
+        await run(await compile(await fs.promises.readFile(file, 'utf-8')), path.dirname(file));
     } catch (e) {
         process.stderr.write(`Error: ${e.message}\n`);
     }

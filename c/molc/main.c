@@ -64,7 +64,7 @@ int main(int argc, char **argv)
 
     if (output_file[0] == 0)
     {
-        strcpy(output_file, strrchr(input_file, '/') + 1);
+        strcpy(output_file, input_file);
         strcpy(strrchr(output_file, '.'), ".molx");
     }
 
