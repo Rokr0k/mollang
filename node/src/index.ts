@@ -245,7 +245,7 @@ async function run(code: Int32Array) {
             } else {
                 cursor += 2;
             }
-        } else if (buffer[cursor] < 135) { // JG
+        } else if (buffer[cursor] < 135) { // JL
             const arg0 = { type: buffer[cursor] - 130, value: buffer[cursor + 1] };
             if (states.lesser) {
                 cursor = evaluate(arg0);
