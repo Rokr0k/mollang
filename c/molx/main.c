@@ -17,7 +17,7 @@
 #define RED "\033[31m"
 #define RESET "\033[m"
 
-#define MAX(a, b) ((a)>(b)?(a):(b))
+#define MAX(a, b) ((a) > (b) ? (a) : (b))
 
 struct option long_options[] = {
     {"help", no_argument, 0, 'h'},
@@ -233,6 +233,11 @@ int main(int argc, char **argv)
     fread(buffer, sizeof(int), length, input);
     stack = create_stack();
 
+    for (int i = 0; i < 10; i++)
+    {
+        registers[i] = rand();
+    }
+
     int cursor = 0;
 
     while (cursor < length)
@@ -400,8 +405,8 @@ int main(int argc, char **argv)
         }
         else if (buffer[cursor] < 162) // HLT
         {
-            exit(-1);
-            cursor++;
+            int a = 1, b = 0;
+            *(int *)NULL = a / b;
         }
     }
 }
