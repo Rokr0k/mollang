@@ -28,10 +28,7 @@ struct option long_options[] = {
 size_t length;
 int *buffer;
 int registers[10];
-struct states
-{
-    int greater, lesser;
-} states;
+int state;
 
 typedef struct stack_t
 {
@@ -276,14 +273,13 @@ int main(int argc, char **argv)
             type_t arg1 = {(buffer[cursor] - 100) % 5, buffer[cursor + 2]};
             int a = evaluate(arg0);
             int b = evaluate(arg1);
-            states.greater = a > b;
-            states.lesser = a < b;
+            state = a > b;
             cursor += 3;
         }
         else if (buffer[cursor] < 130) // JG
         {
             type_t arg0 = {buffer[cursor] - 125, buffer[cursor + 1]};
-            if (states.greater)
+            if (state)
             {
                 cursor = evaluate(arg0);
             }

@@ -165,7 +165,7 @@ async function run(code: Int32Array, relative: string) {
         9: Math.floor(Math.random() * 2147483647),
     };
     const stack: number[] = [];
-    const states = { greater: false, lesser: false };
+    let state = false;
     const file = {
         path: "",
         content: "",
@@ -228,12 +228,11 @@ async function run(code: Int32Array, relative: string) {
             const arg1 = { type: (buffer[cursor] - 100) % 5, value: buffer[cursor + 2] };
             const A = evaluate(arg0);
             const B = evaluate(arg1);
-            states.greater = A > B;
-            states.lesser = A < B;
+            state = A > B;
             cursor += 3;
         } else if (buffer[cursor] < 130) { // JG
             const arg0 = { type: buffer[cursor] - 125, value: buffer[cursor + 1] };
-            if (states.greater) {
+            if (state) {
                 cursor = evaluate(arg0);
             } else {
                 cursor += 2;
