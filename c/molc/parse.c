@@ -430,7 +430,7 @@ void parse(FILE *input, FILE *output)
                     append_buffer(buffer_vector, type0.value);
                 }
                 break;
-            case 6: // JL
+            case 6: // JMP
                 fscanf(input, "%s", arg0);
                 type0 = typeParser(arg0);
                 if (type0.type != UNKNOWN)
@@ -444,7 +444,7 @@ void parse(FILE *input, FILE *output)
                     append_buffer(buffer_vector, type0.value);
                 }
                 break;
-            case 7: // JMP
+            case 7: // CALL
                 fscanf(input, "%s", arg0);
                 type0 = typeParser(arg0);
                 if (type0.type != UNKNOWN)
@@ -458,12 +458,15 @@ void parse(FILE *input, FILE *output)
                     append_buffer(buffer_vector, type0.value);
                 }
                 break;
-            case 8: // CALL
+            case 8: // RET
+                append_buffer(buffer_vector, 140);
+                break;
+            case 9: // INT
                 fscanf(input, "%s", arg0);
                 type0 = typeParser(arg0);
                 if (type0.type != UNKNOWN)
                 {
-                    append_buffer(buffer_vector, 140 + type0.type);
+                    append_buffer(buffer_vector, 141 + type0.type);
                     if (type0.type == ADDRESS || type0.type == REGISTERIZED_ADDRESS)
                     {
                         address_reserve r = {buffer_vector->length, type0.value};
@@ -472,10 +475,7 @@ void parse(FILE *input, FILE *output)
                     append_buffer(buffer_vector, type0.value);
                 }
                 break;
-            case 9: // RET
-                append_buffer(buffer_vector, 145);
-                break;
-            case 10: // INT
+            case 10: // PUSH
                 fscanf(input, "%s", arg0);
                 type0 = typeParser(arg0);
                 if (type0.type != UNKNOWN)
@@ -492,7 +492,7 @@ void parse(FILE *input, FILE *output)
             case 11: // NOP
                 append_buffer(buffer_vector, 0);
                 break;
-            case 12: // PUSH
+            case 12: // POP
                 fscanf(input, "%s", arg0);
                 type0 = typeParser(arg0);
                 if (type0.type != UNKNOWN)
@@ -506,22 +506,8 @@ void parse(FILE *input, FILE *output)
                     append_buffer(buffer_vector, type0.value);
                 }
                 break;
-            case 13: // POP
-                fscanf(input, "%s", arg0);
-                type0 = typeParser(arg0);
-                if (type0.type != UNKNOWN)
-                {
-                    append_buffer(buffer_vector, 156 + type0.type);
-                    if (type0.type == ADDRESS || type0.type == REGISTERIZED_ADDRESS)
-                    {
-                        address_reserve r = {buffer_vector->length, type0.value};
-                        append_addr_vector(addr_vector, r);
-                    }
-                    append_buffer(buffer_vector, type0.value);
-                }
-                break;
             case 27: // HLT
-                append_buffer(buffer_vector, 161);
+                append_buffer(buffer_vector, 156);
                 break;
             }
         }

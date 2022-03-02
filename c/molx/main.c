@@ -292,43 +292,31 @@ int main(int argc, char **argv)
                 cursor += 2;
             }
         }
-        else if (buffer[cursor] < 135) // JL
+        else if (buffer[cursor] < 135) // JMP
         {
             type_t arg0 = {buffer[cursor] - 130, buffer[cursor + 1]};
-            if (states.lesser)
-            {
-                cursor = evaluate(arg0);
-            }
-            else
-            {
-                cursor += 2;
-            }
-        }
-        else if (buffer[cursor] < 140) // JMP
-        {
-            type_t arg0 = {buffer[cursor] - 135, buffer[cursor + 1]};
             cursor = evaluate(arg0);
         }
-        else if (buffer[cursor] < 145) // CALL
+        else if (buffer[cursor] < 140) // CALL
         {
-            type_t arg0 = {buffer[cursor] - 140, buffer[cursor + 1]};
+            type_t arg0 = {buffer[cursor] - 135, buffer[cursor + 1]};
             push_stack(stack, cursor + 2);
             cursor = evaluate(arg0);
         }
-        else if (buffer[cursor] < 146) // RET
+        else if (buffer[cursor] < 141) // RET
         {
             cursor = pop_stack(stack);
         }
-        else if (buffer[cursor] < 151) // INT
+        else if (buffer[cursor] < 146) // INT
         {
-            type_t arg0 = {buffer[cursor] - 146, buffer[cursor + 1]};
+            type_t arg0 = {buffer[cursor] - 141, buffer[cursor + 1]};
             switch (evaluate(arg0))
             {
             case 0:
-                fprintf(stdout, "%c", registers[0]);
+                fprintf(stdout, "%c", (char)registers[0]);
                 break;
             case 1:
-                fscanf(stdin, " %c", &registers[0]);
+                fscanf(stdin, " %c", (char *)&registers[0]);
                 break;
             case 2:
             {
@@ -391,19 +379,19 @@ int main(int argc, char **argv)
             }
             cursor += 2;
         }
-        else if (buffer[cursor] < 156) // PUSH
+        else if (buffer[cursor] < 151) // PUSH
         {
-            type_t arg0 = {buffer[cursor] - 151, buffer[cursor + 1]};
+            type_t arg0 = {buffer[cursor] - 146, buffer[cursor + 1]};
             push_stack(stack, evaluate(arg0));
             cursor += 2;
         }
-        else if (buffer[cursor] < 161) // POP
+        else if (buffer[cursor] < 156) // POP
         {
-            type_t arg0 = {buffer[cursor] - 156, buffer[cursor + 1]};
+            type_t arg0 = {buffer[cursor] - 151, buffer[cursor + 1]};
             insert(arg0, pop_stack(stack));
             cursor += 2;
         }
-        else if (buffer[cursor] < 162) // HLT
+        else if (buffer[cursor] < 157) // HLT
         {
             int a = 1, b = 0;
             *(int *)NULL = a / b;
