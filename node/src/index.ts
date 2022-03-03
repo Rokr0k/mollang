@@ -116,17 +116,17 @@ async function compile(text: string): Promise<Int32Array> {
                     buffer.push(141 + arg0.type, arg0.value);
                     text = text.substring(match[1].length + match[2].length);
                     break;
-                    case 10: // PUSH
+                case 10: // PUSH
                     if (arg0.type < 0) {
                         throw new Error(`"${match[1]} ${match[3]}" 몰?루`);
                     }
                     buffer.push(146 + arg0.type, arg0.value);
                     text = text.substring(match[1].length + match[2].length);
                     break;
-                    case 11: // NOP
-                        buffer.push(0);
-                        text = text.substring(match[1].length);
-                        break;
+                case 11: // NOP
+                    buffer.push(0);
+                    text = text.substring(match[1].length);
+                    break;
                 case 12: // POP
                     if (arg0.type < 0 || arg0.type == 0 || arg0.type == 3) {
                         throw new Error(`"${match[1]} ${match[3]}" 몰?루`);
@@ -144,7 +144,6 @@ async function compile(text: string): Promise<Int32Array> {
             text = text.substring(match[0].length);
         }
     }
-
 
     return new Int32Array(buffer.map(v => typeof (v) == "number" ? v : addresses[v] ? addresses[v] : Math.floor(Math.random() * buffer.length)) as number[]);
 }
@@ -238,16 +237,16 @@ async function run(code: Int32Array, relative: string) {
                 cursor += 2;
             }
         } else if (buffer[cursor] < 135) { // JMP
-            const arg0 = { type: buffer[cursor] - 135, value: buffer[cursor + 1] };
+            const arg0 = { type: buffer[cursor] - 130, value: buffer[cursor + 1] };
             cursor = evaluate(arg0);
         } else if (buffer[cursor] < 140) { // CALL
-            const arg0 = { type: buffer[cursor] - 140, value: buffer[cursor + 1] };
+            const arg0 = { type: buffer[cursor] - 135, value: buffer[cursor + 1] };
             stack.push(cursor + 2);
             cursor = evaluate(arg0);
         } else if (buffer[cursor] < 141) { // RET
             cursor = stack.pop();
         } else if (buffer[cursor] < 146) { // INT
-            const arg0 = { type: buffer[cursor] - 146, value: buffer[cursor + 1] };
+            const arg0 = { type: buffer[cursor] - 141, value: buffer[cursor + 1] };
             switch (evaluate(arg0)) {
                 case 0:
                     process.stdout.write(String.fromCharCode(registers[0]));
@@ -317,17 +316,17 @@ async function run(code: Int32Array, relative: string) {
             }
             cursor += 2;
         } else if (buffer[cursor] < 151) { // PUSH
-            const arg0 = { type: buffer[cursor] - 151, value: buffer[cursor + 1] };
+            const arg0 = { type: buffer[cursor] - 146, value: buffer[cursor + 1] };
             stack.push(evaluate(arg0));
             cursor += 2;
         } else if (buffer[cursor] < 156) { // POP
-            const arg0 = { type: buffer[cursor] - 156, value: buffer[cursor + 1] };
+            const arg0 = { type: buffer[cursor] - 151, value: buffer[cursor + 1] };
             insert(arg0, stack.pop());
             cursor += 2;
         } else if (buffer[cursor] < 157) { // HLT
             cursor++;
             process.exitCode = -1;
-            throw new Error("치명적인♥ 에러");
+            throw new Error("치명적인 에러");
         }
     }
 }
