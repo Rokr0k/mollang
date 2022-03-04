@@ -3,25 +3,18 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-#include <getopt.h>
 #include "parse.h"
 
-#define HELP_STRING "Usage: %s [options] file\n"                                 \
-                    "Options:\n"                                                 \
-                    "  -h | --help     Display this informations.\n"             \
-                    "  -v | --version  Display compiler version informations.\n" \
-                    "  -o <file>       Place the output info <file>.\n"
+#define HELP_STRING "Usage: %s [options] file\n"                            \
+                    "Options:\n"                                            \
+                    "  -h         Display this informations.\n"             \
+                    "  -v         Display compiler version informations.\n" \
+                    "  -o <file>  Place the output info <file>.\n"
 #define VERSION_STRING "molc 1.0.0\n" \
                        "Copyright 2022 ⓒ Rokr0k\n"
 
 #define RED "\033[31m"
 #define RESET "\033[m"
-
-struct option long_options[] = {
-    {"help", no_argument, 0, 'h'},
-    {"version", no_argument, 0, 'v'},
-    {0, 0, 0, 0},
-};
 
 int main(int argc, char **argv)
 {
@@ -31,7 +24,7 @@ int main(int argc, char **argv)
     char output_file[4096] = {0};
     int c;
 
-    while ((c = getopt_long(argc, argv, "hvo:", long_options, NULL)) != -1)
+    while ((c = getopt(argc, argv, "hvo:")) != -1)
     {
         switch (c)
         {
@@ -64,7 +57,7 @@ int main(int argc, char **argv)
 
     if (output_file[0] == 0)
     {
-        strcpy(output_file, input_file);
+        strcpy(output_file, strrchr(input_file, '/') + 1);
         strcpy(strrchr(output_file, '.'), ".molx");
     }
 

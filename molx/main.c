@@ -3,14 +3,13 @@
 #include <stdint.h>
 #include <string.h>
 #include <unistd.h>
-#include <getopt.h>
 #include <time.h>
 #include <linux/limits.h>
 
 #define HELP_STRING "Usage: %s [options] file\n"                     \
                     "Options:\n"                                     \
-                    "  -h | --help     Display this informations.\n" \
-                    "  -v | --version  Display compiler version informations.\n"
+                    "  -h  Display this informations.\n" \
+                    "  -v  Display compiler version informations.\n"
 #define VERSION_STRING "molx 1.0.0\n" \
                        "Copyright 2022 ⓒ Rokr0k\n"
 
@@ -18,12 +17,6 @@
 #define RESET "\033[m"
 
 #define MAX(a, b) ((a) > (b) ? (a) : (b))
-
-struct option long_options[] = {
-    {"help", no_argument, 0, 'h'},
-    {"version", no_argument, 0, 'v'},
-    {0, 0, 0, 0},
-};
 
 size_t length;
 int *buffer;
@@ -71,60 +64,6 @@ void delete_stack(stack_t *s)
 }
 
 stack_t *stack;
-
-typedef struct file_buffer
-{
-    char filename[PATH_MAX];
-    char *data;
-    size_t length;
-    size_t capacity;
-    size_t cursor;
-} file_buffer;
-
-file_buffer *open_file(char *file)
-{
-    file_buffer *b = malloc(sizeof(file_buffer));
-    strcpy(b->filename, file);
-    FILE *f = fopen(file, "r");
-    if (f != NULL)
-    {
-        fseek(f, 0, SEEK_END);
-        b->length = ftell(f);
-        rewind(f);
-        b->capacity = 1 << (sizeof(size_t) * 8 - __builtin_clz(b->length));
-        b->data = malloc(sizeof(char) * b->capacity);
-        fread(b->data, sizeof(char), b->length, f);
-        fclose(f);
-    }
-    else
-    {
-        b->data = malloc(sizeof(char));
-        b->length = 0;
-        b->capacity = 1;
-    }
-    return b;
-}
-
-void reserve_file(file_buffer *b, size_t s)
-{
-    if (s > b->capacity)
-    {
-        b->capacity = 1 << (sizeof(size_t) * 8 - __builtin_clz(s));
-        b->data = realloc(b->data, b->capacity);
-    }
-    b->length = MAX(b->length, s);
-}
-
-void close_file(file_buffer *b)
-{
-    FILE *f = fopen(b->filename, "w");
-    fwrite(b->data, sizeof(char), b->length, f);
-    fclose(f);
-    free(b->data);
-    free(b);
-}
-
-file_buffer *file;
 
 typedef enum type_enum
 {
@@ -186,7 +125,7 @@ int main(int argc, char **argv)
     FILE *input = NULL;
     char input_file[PATH_MAX] = {0};
     int c;
-    while ((c = getopt_long(argc, argv, "hv", long_options, NULL)) != -1)
+    while ((c = getopt(argc, argv, "hv")) != -1)
     {
         switch (c)
         {
@@ -227,7 +166,8 @@ int main(int argc, char **argv)
     length = ftell(input) / sizeof(int);
     rewind(input);
     buffer = malloc(sizeof(int) * length);
-    fread(buffer, sizeof(int), length, input);
+    length = fread(buffer, sizeof(int), length, input);
+    fclose(input);
     stack = create_stack();
 
     for (int i = 0; i < 10; i++)
@@ -309,59 +249,12 @@ int main(int argc, char **argv)
             switch (evaluate(arg0))
             {
             case 0:
-                fprintf(stdout, "%c", (char)registers[0]);
+                fputc(registers[0], stdout);
                 break;
             case 1:
-                fscanf(stdin, " %c", (char *)&registers[0]);
+                registers[0] = fgetc(stdin);
                 break;
             case 2:
-            {
-                char *symFilename = malloc(sizeof(char) * PATH_MAX);
-                char *filename = malloc(sizeof(char) * PATH_MAX);
-                int pointer = registers[1];
-                while (buffer[pointer])
-                {
-                    filename[pointer - registers[1]] = buffer[pointer];
-                    pointer++;
-                }
-                filename[pointer - registers[1]] = '\0';
-                if (filename[0] != '/' || filename[0] != '~')
-                {
-                    strncpy(symFilename, input_file, strrchr(input_file, '/') - input_file + 1);
-                    strcat(symFilename, filename);
-                }
-                else
-                {
-                    strcpy(symFilename, filename);
-                }
-                realpath(symFilename, filename);
-                file = open_file(filename);
-                free(symFilename);
-                free(filename);
-                break;
-            }
-            case 3:
-                reserve_file(file, file->cursor + 1);
-                file->data[file->cursor++] = registers[0];
-                break;
-            case 4:
-                reserve_file(file, file->cursor + 1);
-                registers[0] = file->data[file->cursor++];
-                break;
-            case 5:
-                file->cursor = registers[2];
-                reserve_file(file, file->cursor + 1);
-                break;
-            case 6:
-                registers[2] = file->cursor;
-                break;
-            case 7:
-                registers[2] = file->length;
-                break;
-            case 8:
-                close_file(file);
-                break;
-            case 9:
             {
                 struct timespec ts;
                 ts.tv_sec = registers[0] / 1000;
@@ -369,7 +262,7 @@ int main(int argc, char **argv)
                 nanosleep(&ts, &ts);
                 break;
             }
-            case 10:
+            case 3:
                 exit(0);
                 break;
             }
